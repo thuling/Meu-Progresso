@@ -869,31 +869,14 @@ document.addEventListener('DOMContentLoaded', () => {
          const firebaseConfig = typeof __firebase_config !== 'undefined'
             ? JSON.parse(__firebase_config)
             : { 
-                // *****************************************************************
-                // ** PASSO CRÍTICO PARA USO LOCAL (VS CODE): **
-                // ** 1. Crie um projeto gratuito em https://firebase.google.com/ **
-                // ** 2. Vá em "Configurações do Projeto" > "Geral".          **
-                // ** 3. Em "Seus apps", crie um app Web (<>).                 **
-                // ** 4. Copie o objeto de configuração (firebaseConfig) e cole AQUI, **
-                // ** substituindo todo este bloco de exemplo.             **
-                // *****************************************************************
-                apiKey: "API_KEY_PLACEHOLDER", 
-                authDomain: "seu-projeto.firebaseapp.com", 
-                projectId: "seu-projeto-id", 
-                storageBucket: "seu-projeto.appspot.com", 
-                messagingSenderId: "SEU_SENDER_ID", 
-                appId: "SEU_APP_ID"
+                apiKey: "AIzaSyBkALEr1G1NpN2gbHTcaETMkeOIKiUBPaU",
+                authDomain: "meuprogresso-252d1.firebaseapp.com",
+                projectId: "meuprogresso-252d1",
+                storageBucket: "meuprogresso-252d1.firebasestorage.app",
+                messagingSenderId: "878116063684",
+                appId: "1:878116063684:web:509ada02fb1da98ab07c91",
+                measurementId: "G-7PC7P5GTE5"
               };
-
-        if (firebaseConfig.apiKey === "API_KEY_PLACEHOLDER") {
-             authContainer.innerHTML = `<div class="text-center text-yellow-400 bg-gray-700 p-4 rounded-lg">
-                <h1 class="text-2xl font-bold">Tudo Certo Para a Vercel!</h1>
-                <p class="mt-2">Esta mensagem aparece apenas em testes locais.</p>
-                <p class="mt-2 text-sm">A configuração do Firebase será injetada automaticamente quando você publicar o site. Nenhuma ação é necessária no código.</p>
-                </div>`;
-             lucide.createIcons();
-            return; 
-        }
 
         try {
             const app = initializeApp(firebaseConfig);
