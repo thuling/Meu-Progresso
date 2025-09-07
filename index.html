@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Progresso Fitness</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-900 text-gray-200">
+
+    <div id="auth-container" class="min-h-screen flex items-center justify-center bg-gray-900 p-4">
+        <div class="w-full max-w-md bg-gray-800 rounded-2xl shadow-lg p-8">
+            <div class="text-center mb-8">
+                <i data-lucide="dumbbell" class="mx-auto h-12 w-12 text-blue-500"></i>
+                <h1 class="text-3xl font-bold text-white mt-4">Bem-vindo!</h1>
+                <p class="text-gray-400">Acesse sua conta para continuar.</p>
+            </div>
+
+            <div id="login-form">
+                <form onsubmit="event.preventDefault(); window.app.login()">
+                    <div class="space-y-4">
+                        <input id="login-email" type="email" placeholder="Email" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        <input id="login-password" type="password" placeholder="Senha" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <button type="submit" class="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition duration-300">Entrar</button>
+                </form>
+                <p class="text-center text-sm text-gray-400 mt-6">
+                    Não tem uma conta? <a href="#" onclick="window.app.showSignUp()" class="font-medium text-blue-400 hover:underline">Cadastre-se</a>
+                </p>
+            </div>
+
+            <div id="signup-form" class="hidden">
+                 <form onsubmit="event.preventDefault(); window.app.signup()">
+                    <div class="space-y-4">
+                        <input id="signup-email" type="email" placeholder="Email" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        <input id="signup-password" type="password" placeholder="Senha (mínimo 6 caracteres)" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <button type="submit" class="w-full mt-6 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition duration-300">Criar Conta</button>
+                </form>
+                <p class="text-center text-sm text-gray-400 mt-6">
+                    Já tem uma conta? <a href="#" onclick="window.app.showLogin()" class="font-medium text-blue-400 hover:underline">Faça login</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-container" class="hidden flex flex-col md:flex-row min-h-screen">
+        <!-- Barra de Navegação Lateral -->
+        <nav class="bg-black/30 backdrop-blur-sm border-r border-gray-800 md:w-64 p-4 flex md:flex-col justify-between md:justify-start">
+            <div>
+                <h1 class="text-2xl font-bold text-white mb-8 flex items-center">
+                    <i data-lucide="dumbbell" class="mr-2 text-blue-500"></i>
+                    Progresso
+                </h1>
+                <ul class="space-y-2">
+                    <li><a href="#" data-page="dashboard" class="nav-link flex items-center p-3 rounded-lg hover:bg-gray-700/50"><i data-lucide="layout-dashboard" class="mr-3"></i> Painel</a></li>
+                    <li><a href="#" data-page="log-workout" class="nav-link flex items-center p-3 rounded-lg hover:bg-gray-700/50"><i data-lucide="plus-square" class="mr-3"></i> Registrar</a></li>
+                    <li><a href="#" data-page="history" class="nav-link flex items-center p-3 rounded-lg hover:bg-gray-700/50"><i data-lucide="history" class="mr-3"></i> Histórico</a></li>
+                    <li><a href="#" data-page="analytics" class="nav-link flex items-center p-3 rounded-lg hover:bg-gray-700/50"><i data-lucide="bar-chart-3" class="mr-3"></i> Análises</a></li>
+                    <li><a href="#" data-page="goals" class="nav-link flex items-center p-3 rounded-lg hover:bg-gray-700/50"><i data-lucide="target" class="mr-3"></i> Metas</a></li>
+                    <li><a href="#" data-page="settings" class="nav-link flex items-center p-3 rounded-lg hover:bg-gray-700/50"><i data-lucide="settings" class="mr-3"></i> Rotinas</a></li>
+                </ul>
+            </div>
+            <div class="mt-auto">
+                 <button onclick="app.logout()" class="w-full flex items-center p-3 rounded-lg text-red-400 hover:bg-red-900/50">
+                    <i data-lucide="log-out" class="mr-3"></i> Sair
+                 </button>
+                <div class="text-xs text-gray-500 mt-4 hidden md:block">
+                    <p>&copy; 2025 - Seus Dados Fitness</p>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Conteúdo Principal -->
+        <main class="flex-1 p-4 md:p-8 overflow-y-auto bg-gray-900/50">
+            <!-- PÁGINAS -->
+            <div id="page-dashboard" class="page"></div>
+            <div id="page-log-workout" class="page"></div>
+            <div id="page-history" class="page"></div>
+            <div id="page-analytics" class="page"></div>
+            <div id="page-goals" class="page"></div>
+            <div id="page-settings" class="page"></div>
+        </main>
+    </div>
+    
+    <!-- MODAIS E ELEMENTOS FLUTUANTES -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-green-500 text-white py-2 px-4 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-[200]"></div>
+    <div id="ai-modal" class="fixed inset-0 flex items-center justify-center hidden z-[110]"></div>
+    <div id="edit-modal" class="fixed inset-0 flex items-center justify-center hidden z-[110]"></div>
+    <div id="confirm-modal" class="fixed inset-0 flex items-center justify-center hidden z-[110]"></div>
+    <div id="workout-feedback-modal" class="fixed inset-0 flex items-center justify-center hidden z-[110]"></div>
+    <div id="workout-details-modal" class="fixed inset-0 flex items-center justify-center hidden z-[110]"></div>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
