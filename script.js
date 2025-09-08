@@ -233,17 +233,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     <button onclick="app.finishWorkout()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300">Finalizar Treino</button>
                     <button onclick="app.cancelWorkout()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300">Cancelar</button>
                 </div>`;
-                
             } else {
                 content = templates.pageTitle('Registrar Treino', 'Escolha uma rotina para começar.');
-                content += '<div class="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">';
-                state.routines.forEach((routine) => {
-                    content += `<button onclick="app.startWorkout('${routine.id}')" class="text-left bg-gray-800/50 p-6 rounded-xl border border-gray-700 hover:border-blue-500 transition-all">
-                        <h3 class="font-semibold text-white">${routine.name}</h3>
-                        <p class="text-gray-400 text-sm mt-1">${routine.exercises.length} exercícios</p>
-                    </button>`;
-                });
-                content += '</div>';
+                if (state.routines.length > 0) {
+                    content += '<div class="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">';
+                    state.routines.forEach((routine) => {
+                        content += `<button onclick="app.startWorkout('${routine.id}')" class="text-left bg-gray-800/50 p-6 rounded-xl border border-gray-700 hover:border-blue-500 transition-all">
+                            <h3 class="font-semibold text-white">${routine.name}</h3>
+                            <p class="text-gray-400 text-sm mt-1">${routine.exercises.length} exercícios</p>
+                        </button>`;
+                    });
+                    content += '</div>';
+                } else {
+                    content += `<div class="mt-8 bg-gray-800/50 p-6 rounded-xl border border-gray-700">
+                        <p class="text-gray-400 text-center">Nenhuma rotina encontrada. Crie sua primeira rotina na aba 'Rotinas' para começar.</p>
+                    </div>`;
+                }
             }
             el.innerHTML = content;
             if(state.currentWorkout) renderPage.renderCurrentWorkout();
@@ -858,6 +863,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error("Erro no cadastro:", error.code, error.message);
                 if (error.code === 'auth/email-already-in-use') {
                     window.modal.toast("Este email já está em uso.", false);
+                } else if (error.code === 'auth/network-request-failed') {
+                    window.modal.toast("Falha na rede. Verifique sua conexão.", false);
                 } else {
                      window.modal.toast("Falha ao criar conta. Verifique sua conexão e a configuração do Firebase.", false);
                 }
@@ -884,6 +891,14 @@ document.addEventListener('DOMContentLoaded', () => {
          const firebaseConfig = typeof __firebase_config !== 'undefined'
             ? JSON.parse(__firebase_config)
             : { 
+                // *****************************************************************
+                // ** PASSO CRÍTICO PARA USO LOCAL (VS CODE): **
+                // ** 1. Crie um projeto gratuito em https://firebase.google.com/ **
+                // ** 2. Vá em "Configurações do Projeto" > "Geral".          **
+                // ** 3. Em "Seus apps", crie um app Web (<>).                 **
+                // ** 4. Copie o objeto de configuração (firebaseConfig) e cole AQUI, **
+                // ** substituindo todo este bloco de exemplo.             **
+                // *****************************************************************
                 apiKey: "AIzaSyBkALEr1G1NpN2gbHTcaETMkeOIKiUBPaU",
                 authDomain: "meuprogresso-252d1.firebaseapp.com",
                 projectId: "meuprogresso-252d1",
@@ -893,9 +908,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 measurementId: "G-7PC7P5GTE5"
               };
         
-        // Esta verificação é para o ambiente de desenvolvimento local
-        if (typeof __firebase_config === 'undefined' && firebaseConfig.apiKey === "AIzaSyBkALEr1G1NpN2gbHTcaETMkeOIKiUBPaU") {
-             console.warn("Usando configuração de Firebase de exemplo. O login pode não funcionar corretamente.");
+        // Esta verificação é para o ambiente de desenvolvimento local e Vercel sem a variável de ambiente
+        if (firebaseConfig.apiKey === "COLE_SUA_API_KEY_AQUI") {
+             authContainer.innerHTML = `<div class="text-center text-yellow-400 bg-gray-700 p-4 rounded-lg">
+                <h1 class="text-2xl font-bold">Ação Necessária</h1>
+                <p class="mt-2">A configuração do Firebase não foi encontrada.</p>
+                <p class="mt-2 text-sm">Se estiver rodando localmente, siga as instruções no arquivo <strong>script.js</strong>. Se estiver na Vercel, adicione a variável de ambiente <strong>__firebase_config</strong>.</p>
+                </div>`;
+             lucide.createIcons();
+            return; 
         }
 
 
@@ -982,4 +1003,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     init();
 });
+"
 
