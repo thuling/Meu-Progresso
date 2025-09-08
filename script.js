@@ -838,7 +838,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             try {
-                await createUserWithEmailAndPassword(auth, email, password);
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // Adicionar rotinas padrão para novo usuário
+                const defaultRoutines = [
+                    { name: "Segunda - Peito, Ombro e Tríceps", exercises: [ { name: "Supino Reto", muscle: "Peito" }, { name: "Supino Inclinado", muscle: "Peito" }, { name: "Crucifixo", muscle: "Peito" }, { name: "Desenvolvimento", muscle: "Ombro" }, { name: "Elevação Frontal", muscle: "Ombro" }, { name: "Tríceps Corda", muscle: "Tríceps" } ]},
+                    { name: "Terça - Costas e Bíceps", exercises: [ { name: "Puxada Frontal", muscle: "Costas" }, { name: "Remada Curvada", muscle: "Costas" }, { name: "Serrote", muscle: "Costas" }, { name: "Crucifixo Inverso", muscle: "Ombro" }, { name: "Rosca Direta", muscle: "Bíceps" }, { name: "Rosca Martelo", muscle: "Bíceps" } ]},
+                    { name: "Quarta - Pernas", exercises: [ { name: "Agachamento Livre", muscle: "Quadríceps" }, { name: "Leg Press 45º", muscle: "Quadríceps" }, { name: "Stiff", muscle: "Posterior" }, { name: "Cadeira Flexora", muscle: "Posterior" }, { name: "Panturrilha em Pé", muscle: "Panturrilha" }, { name: "Panturrilha Sentado", muscle: "Panturrilha" } ]},
+                    { name: "Sexta - Superior Completo", exercises: [ { name: "Supino Máquina", muscle: "Peito" }, { name: "Puxada Triângulo", muscle: "Costas" }, { name: "Elevação Lateral", muscle: "Ombro" }, { name: "Rosca Alternada", muscle: "Bíceps" }, { name: "Tríceps Francês", muscle: "Tríceps" } ]},
+                    { name: "Sábado - Pernas 2", exercises: [ { name: "Cadeira Extensora", muscle: "Quadríceps" }, { name: "Agachamento Hack", muscle: "Quadríceps" }, { name: "Mesa Flexora", muscle: "Posterior" }, { name: "Elevação Pélvica", muscle: "Posterior" }, { name: "Panturrilha Leg Press", muscle: "Panturrilha" }, { name: "Panturrilha Smith", muscle: "Panturrilha" } ]}
+                ];
+
+                for (const routine of defaultRoutines) {
+                    await addDoc(collection(db, `users/${user.uid}/routines`), routine);
+                }
+
             } catch (error) {
                 console.error("Erro no cadastro:", error.code, error.message);
                 if (error.code === 'auth/email-already-in-use') {
@@ -877,6 +892,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 appId: "1:878116063684:web:509ada02fb1da98ab07c91",
                 measurementId: "G-7PC7P5GTE5"
               };
+        
+        // Esta verificação é para o ambiente de desenvolvimento local
+        if (typeof __firebase_config === 'undefined' && firebaseConfig.apiKey === "AIzaSyBkALEr1G1NpN2gbHTcaETMkeOIKiUBPaU") {
+             console.warn("Usando configuração de Firebase de exemplo. O login pode não funcionar corretamente.");
+        }
+
 
         try {
             const app = initializeApp(firebaseConfig);
