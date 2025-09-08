@@ -824,6 +824,10 @@ document.addEventListener('DOMContentLoaded', () => {
         login: async () => {
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
+            const button = loginForm.querySelector('button');
+            button.disabled = true;
+            button.textContent = 'Entrando...';
+
             try {
                 await signInWithEmailAndPassword(auth, email, password);
             } catch (error) {
@@ -833,15 +837,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                      window.modal.toast("Falha no login. Verifique sua conexão.", false);
                 }
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Entrar';
             }
         },
         signup: async () => {
             const email = document.getElementById('signup-email').value;
             const password = document.getElementById('signup-password').value;
+            const button = signupForm.querySelector('button');
+
              if (password.length < 6) {
                 window.modal.toast("A senha deve ter no mínimo 6 caracteres.", false);
                 return;
             }
+
+            button.disabled = true;
+            button.textContent = 'Criando...';
+
             try {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
@@ -868,6 +881,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                      window.modal.toast("Falha ao criar conta. Verifique sua conexão e a configuração do Firebase.", false);
                 }
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Criar Conta';
             }
         },
         logout: async () => {
@@ -1003,5 +1019,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     init();
 });
-"
 
