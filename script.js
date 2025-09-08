@@ -87,11 +87,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const templates = {
         pageTitle: (title, subtitle) => `<div class="mb-8"><h1 class="text-3xl font-bold text-white">${title}</h1><p class="text-gray-400 mt-1">${subtitle}</p></div>`,
         modal: (id, title, body, footer) => `
-            <div class="modal-backdrop fixed inset-0" onclick="window.modal.hide('${id}')"></div>
+            <div class="modal-backdrop fixed inset-0" data-action="hide-modal" data-id="${id}"></div>
             <div class="modal-content bg-gray-800 rounded-lg shadow-xl p-6 w-11/12 md:w-1/2 lg:w-1/3 overflow-y-auto">
                 <div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-3">
                     <h3 class="text-xl font-bold text-white">${title}</h3>
-                    <button onclick="window.modal.hide('${id}')" class="text-gray-400 hover:text-white"><i data-lucide="x"></i></button>
+                    <button data-action="hide-modal" data-id="${id}" class="text-gray-400 hover:text-white"><i data-lucide="x"></i></button>
                 </div>
                 <div class="modal-body">${body}</div>
                 ${footer ? `<div class="modal-footer mt-6 flex justify-end gap-3">${footer}</div>` : ''}
@@ -217,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
                    <div class="bg-gray-800/50 p-6 rounded-xl border border-gray-700 flex flex-col justify-center items-center">
                        <h3 class="font-semibold text-white mb-3">Análise com IA</h3>
                        <p class="text-gray-400 text-sm text-center mb-4">Receba insights sobre seu progresso nos últimos 30 dias.</p>
-                       <button onclick="app.analyzeProgress()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition duration-300">
+                       <button data-action="analyze-progress" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition duration-300">
                             <i data-lucide="sparkles" class="w-5 h-5"></i> Analisar Progresso
                         </button>
                    </div>
@@ -230,15 +230,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 content = templates.pageTitle(state.currentWorkout.routineName, `Iniciado em ${logic.formatDate(state.currentWorkout.date, {hour: '2-digit', minute: '2-digit'})}`);
                 content += `<div id="current-workout-area" class="mt-6 space-y-6"></div>
                 <div class="mt-8 flex gap-4">
-                    <button onclick="app.finishWorkout()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300">Finalizar Treino</button>
-                    <button onclick="app.cancelWorkout()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300">Cancelar</button>
+                    <button data-action="finish-workout" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300">Finalizar Treino</button>
+                    <button data-action="cancel-workout" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300">Cancelar</button>
                 </div>`;
             } else {
                 content = templates.pageTitle('Registrar Treino', 'Escolha uma rotina para começar.');
                 if (state.routines.length > 0) {
                     content += '<div class="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">';
                     state.routines.forEach((routine) => {
-                        content += `<button onclick="app.startWorkout('${routine.id}')" class="text-left bg-gray-800/50 p-6 rounded-xl border border-gray-700 hover:border-blue-500 transition-all">
+                        content += `<button data-action="start-workout" data-id="${routine.id}" class="text-left bg-gray-800/50 p-6 rounded-xl border border-gray-700 hover:border-blue-500 transition-all">
                             <h3 class="font-semibold text-white">${routine.name}</h3>
                             <p class="text-gray-400 text-sm mt-1">${routine.exercises.length} exercícios</p>
                         </button>`;
@@ -263,14 +263,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         ${ex.sets.map((set, setIndex) => `
                             <div class="flex items-center justify-between bg-gray-700 p-2 rounded">
                                 <span class="text-sm">Série ${setIndex + 1}: <span class="font-bold">${set.weight} kg</span> x <span class="font-bold">${set.reps} reps</span></span>
-                                <button class="text-red-400 hover:text-red-300" onclick="app.removeSet(${exIndex}, ${setIndex})"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                                <button data-action="remove-set" data-ex-index="${exIndex}" data-set-index="${setIndex}" class="text-red-400 hover:text-red-300"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                             </div>
                         `).join('')}
                     </div>
                     <div class="flex gap-2">
                         <input type="number" placeholder="Carga (kg)" class="w-full bg-gray-700 border border-gray-600 rounded p-2 focus:outline-none" id="weight-input-${exIndex}">
                         <input type="number" placeholder="Reps" class="w-full bg-gray-700 border border-gray-600 rounded p-2 focus:outline-none" id="reps-input-${exIndex}">
-                        <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold p-2 rounded" onclick="app.addSet(${exIndex})">Adicionar</button>
+                        <button data-action="add-set" data-id="${exIndex}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold p-2 rounded">Adicionar</button>
                     </div>
                 </div>
             `).join('');
@@ -289,8 +289,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             <p class="text-sm text-gray-400">${logic.formatDate(workout.date)}</p>
                         </div>
                         <div class="flex items-center gap-2">
-                            <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg" onclick="window.modal.showWorkoutDetails('${workout.id}')">Ver Detalhes</button>
-                            <button class="text-red-400 hover:text-red-300 p-2 rounded-lg bg-gray-700 hover:bg-red-900/50" onclick="app.deleteWorkout('${workout.id}')"><i data-lucide="trash-2"></i></button>
+                            <button data-action="view-details" data-id="${workout.id}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">Ver Detalhes</button>
+                            <button data-action="delete-workout" data-id="${workout.id}" class="text-red-400 hover:text-red-300 p-2 rounded-lg bg-gray-700 hover:bg-red-900/50"><i data-lucide="trash-2"></i></button>
                         </div>
                     </div>`;
                 });
@@ -309,7 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
                  <div class="bg-gray-800/50 p-6 rounded-xl border border-gray-700">
                      <div class="mb-6">
                          <label for="exercise-analytics-select" class="block mb-2 font-bold">Selecione um Exercício:</label>
-                         <select id="exercise-analytics-select" onchange="app.renderChart(this.value)" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                         <select id="exercise-analytics-select" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
                              ${allExercises.map(name => `<option value="${name}">${name}</option>`).join('')}
                          </select>
                      </div>
@@ -327,7 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             content += `
                 <div class="mb-6 text-right">
-                     <button onclick="window.modal.showAddGoal()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition duration-300 inline-flex">
+                     <button data-action="show-add-goal" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition duration-300 inline-flex">
                         <i data-lucide="plus" class="w-5 h-5"></i> Nova Meta
                     </button>
                 </div>`;
@@ -345,7 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <p class="font-bold text-lg text-white">${goal.exerciseName}</p>
                                 <p class="text-2xl font-bold text-blue-400">${goal.targetWeight} kg</p>
                             </div>
-                            <button class="text-red-400 hover:text-red-300" onclick="app.deleteGoal('${goal.id}')"><i data-lucide="trash-2"></i></button>
+                            <button data-action="delete-goal" data-id="${goal.id}" class="text-red-400 hover:text-red-300"><i data-lucide="trash-2"></i></button>
                         </div>
                         <div class="mt-4">
                             <div class="flex justify-between text-sm mb-1">
@@ -379,7 +379,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <h3 class="font-bold text-lg mb-4">Minhas Rotinas</h3>
                         <div class="flex gap-2 mb-4">
                             <input type="text" id="new-routine-name" placeholder="Nome da Nova Rotina" class="flex-1 bg-gray-700 border border-gray-600 rounded-lg p-2 focus:outline-none">
-                            <button onclick="app.addRoutine()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold p-2 rounded-lg"><i data-lucide="plus"></i></button>
+                            <button data-action="add-routine" class="bg-blue-600 hover:bg-blue-700 text-white font-bold p-2 rounded-lg"><i data-lucide="plus"></i></button>
                         </div>
                         <ul id="routines-list" class="space-y-2"></ul>
                     </div>
@@ -398,8 +398,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <li class="flex justify-between items-center bg-gray-700 p-2 rounded">
                     <span>${routine.name}</span>
                     <div class="flex items-center gap-2">
-                        <button class="text-blue-400 hover:text-blue-300" onclick="app.editRoutine('${routine.id}')"><i data-lucide="pencil" class="w-4 h-4"></i></button>
-                        <button class="text-red-400 hover:text-red-300" onclick="app.deleteRoutine('${routine.id}')"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        <button data-action="edit-routine" data-id="${routine.id}" class="text-blue-400 hover:text-blue-300"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+                        <button data-action="delete-routine" data-id="${routine.id}" class="text-red-400 hover:text-red-300"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                     </div>
                 </li>
             `).join('');
@@ -412,21 +412,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 area.innerHTML = `<p class="text-gray-400">Crie uma rotina primeiro para poder adicionar exercícios.</p>`;
                 return;
             }
-            const routineId = state.routines[selectedIndex].id;
             area.innerHTML = `
                 <div class="mb-4">
                     <label for="manage-routine-select" class="block mb-2">Selecione a Rotina:</label>
-                    <select id="manage-routine-select" onchange="renderPage.renderExerciseManager(this.selectedIndex)" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2 focus:outline-none">
+                    <select id="manage-routine-select" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2 focus:outline-none">
                         ${state.routines.map((r, i) => `<option value="${r.id}" ${i == selectedIndex ? 'selected' : ''}>${r.name}</option>`).join('')}
                     </select>
                 </div>
                 <div class="flex gap-2 mb-4">
                     <input type="text" id="new-exercise-name" placeholder="Nome do Exercício" class="flex-1 bg-gray-700 border border-gray-600 rounded-lg p-2 focus:outline-none">
                     <input type="text" id="new-exercise-muscle" placeholder="Grupo Muscular" class="flex-1 bg-gray-700 border border-gray-600 rounded-lg p-2 focus:outline-none">
-                    <button onclick="app.addExercise()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold p-2 rounded-lg"><i data-lucide="plus"></i></button>
+                    <button data-action="add-exercise" class="bg-blue-600 hover:bg-blue-700 text-white font-bold p-2 rounded-lg"><i data-lucide="plus"></i></button>
                 </div>
                 <h4 class="font-bold mt-6 mb-2">Exercícios na Rotina:</h4>
                 <ul id="exercise-list" class="space-y-2"></ul>`;
+            
+            const routineId = document.getElementById('manage-routine-select').value;
             renderPage.renderExerciseList(routineId);
         },
         renderExerciseList: (routineId) => {
@@ -441,8 +442,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             <span class="text-xs bg-gray-600 px-2 py-1 rounded-full ml-2">${ex.muscle}</span>
                         </div>
                         <div class="flex items-center gap-3">
-                            <button class="text-blue-400 hover:text-blue-300" onclick="app.editExercise('${routineId}', ${exIndex})"><i data-lucide="pencil" class="w-4 h-4"></i></button>
-                            <button class="text-red-400 hover:text-red-300" onclick="app.removeExercise('${routineId}', ${exIndex})"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            <button data-action="edit-exercise" data-routine-id="${routineId}" data-ex-index="${exIndex}" class="text-blue-400 hover:text-blue-300"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+                            <button data-action="remove-exercise" data-routine-id="${routineId}" data-ex-index="${exIndex}" class="text-red-400 hover:text-red-300"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                         </div>
                     </li>
                 `).join('');
@@ -473,7 +474,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         showEdit: (title, currentValue, onSave) => {
             const body = `<input type="text" id="edit-modal-input" class="w-full bg-gray-700 border border-gray-600 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" value="${currentValue}">`;
-            const footer = `<button class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg" onclick="window.modal.hide('edit')">Cancelar</button>
+            const footer = `<button class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg" data-action="hide-modal" data-id="edit">Cancelar</button>
                           <button id="edit-modal-save-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">Salvar</button>`;
             window.modal.show('edit', title, body, footer);
             const saveBtn = document.getElementById('edit-modal-save-btn');
@@ -494,7 +495,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <input type="text" id="edit-exercise-muscle" class="w-full bg-gray-700 p-2 rounded border border-gray-600" value="${exercise.muscle}">
                     </div>
                 </div>`;
-            const footer = `<button class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg" onclick="window.modal.hide('edit')">Cancelar</button>
+            const footer = `<button class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg" data-action="hide-modal" data-id="edit">Cancelar</button>
                           <button id="edit-exercise-save-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">Salvar</button>`;
             window.modal.show('edit', 'Editar Exercício', body, footer);
             
@@ -505,7 +506,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
         },
          showConfirm: (title, message, onConfirm) => {
-            const footer = `<button class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg" onclick="window.modal.hide('confirm')">Cancelar</button>
+            const footer = `<button class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg" data-action="hide-modal" data-id="confirm">Cancelar</button>
                           <button id="confirm-modal-confirm-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg">Confirmar</button>`;
             window.modal.show('confirm', title, message, footer);
             document.getElementById('confirm-modal-confirm-btn').onclick = () => {
@@ -606,7 +607,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <input type="date" id="goal-date" class="w-full bg-gray-700 p-2 rounded border border-gray-600">
                     </div>
                 </div>`;
-            const footer = `<button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg" onclick="app.addGoal()">Criar Meta</button>`;
+            const footer = `<button data-action="add-goal" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">Criar Meta</button>`;
             window.modal.show('edit', 'Criar Nova Meta', body, footer);
         }
     };
@@ -634,7 +635,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- HANDLERS DE EVENTOS GLOBAIS ---
-    window.app = {
+    const app = {
         startWorkout: (routineId) => {
             const routine = state.routines.find(r => r.id === routineId);
             if (!routine) return;
@@ -826,7 +827,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const password = document.getElementById('login-password').value;
             const button = loginForm.querySelector('button');
             button.disabled = true;
-            button.textContent = 'Entrando...';
+            button.innerHTML = `<span class="spinner w-5 h-5 mx-auto"></span>`;
 
             try {
                 await signInWithEmailAndPassword(auth, email, password);
@@ -853,7 +854,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             button.disabled = true;
-            button.textContent = 'Criando...';
+            button.innerHTML = `<span class="spinner w-5 h-5 mx-auto"></span>`;
 
             try {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -879,7 +880,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (error.code === 'auth/network-request-failed') {
                     window.modal.toast("Falha na rede. Verifique sua conexão.", false);
                 } else {
-                     window.modal.toast("Falha ao criar conta. Verifique sua conexão e a configuração do Firebase.", false);
+                     window.modal.toast(`Falha ao criar conta: ${error.message}`, false);
                 }
             } finally {
                 button.disabled = false;
@@ -907,14 +908,6 @@ document.addEventListener('DOMContentLoaded', () => {
          const firebaseConfig = typeof __firebase_config !== 'undefined'
             ? JSON.parse(__firebase_config)
             : { 
-                // *****************************************************************
-                // ** PASSO CRÍTICO PARA USO LOCAL (VS CODE): **
-                // ** 1. Crie um projeto gratuito em https://firebase.google.com/ **
-                // ** 2. Vá em "Configurações do Projeto" > "Geral".          **
-                // ** 3. Em "Seus apps", crie um app Web (<>).                 **
-                // ** 4. Copie o objeto de configuração (firebaseConfig) e cole AQUI, **
-                // ** substituindo todo este bloco de exemplo.             **
-                // *****************************************************************
                 apiKey: "AIzaSyBkALEr1G1NpN2gbHTcaETMkeOIKiUBPaU",
                 authDomain: "meuprogresso-252d1.firebaseapp.com",
                 projectId: "meuprogresso-252d1",
@@ -924,7 +917,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 measurementId: "G-7PC7P5GTE5"
               };
         
-        // Esta verificação é para o ambiente de desenvolvimento local e Vercel sem a variável de ambiente
         if (firebaseConfig.apiKey === "COLE_SUA_API_KEY_AQUI") {
              authContainer.innerHTML = `<div class="text-center text-yellow-400 bg-gray-700 p-4 rounded-lg">
                 <h1 class="text-2xl font-bold">Ação Necessária</h1>
@@ -943,17 +935,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             onAuthStateChanged(auth, (user) => {
                 if (user) {
-                    // Usuário está logado
                     state.userId = user.uid;
                     authContainer.classList.add('hidden');
                     appContainer.classList.remove('hidden');
                     
-                    // Limpa listeners antigos
                     if (unsubscribeRoutines) unsubscribeRoutines();
                     if (unsubscribeWorkouts) unsubscribeWorkouts();
                     if (unsubscribeGoals) unsubscribeGoals();
 
-                    // Listener para Rotinas
                     const routinesQuery = query(collection(db, `users/${state.userId}/routines`));
                     unsubscribeRoutines = onSnapshot(routinesQuery, (snapshot) => {
                         state.routines = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -963,7 +952,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     });
 
-                    // Listener para Treinos
                     const workoutsQuery = query(collection(db, `users/${state.userId}/workouts`));
                     unsubscribeWorkouts = onSnapshot(workoutsQuery, (snapshot) => {
                         state.workouts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -973,7 +961,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     });
                     
-                    // Listener para Metas
                     const goalsQuery = query(collection(db, `users/${state.userId}/goals`));
                     unsubscribeGoals = onSnapshot(goalsQuery, (snapshot) => {
                         state.goals = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -983,10 +970,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     });
 
-
                     showPage('dashboard');
                 } else {
-                    // Usuário está deslogado
                     state.userId = null;
                     state.routines = [];
                     state.workouts = [];
@@ -1007,6 +992,60 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- INICIALIZAÇÃO GERAL ---
     const init = () => {
         initFirebase();
+        
+        // Listener de eventos centralizado
+        document.body.addEventListener('click', (e) => {
+            const target = e.target.closest('[data-action]');
+            if (!target) return;
+            
+            e.preventDefault();
+            const { action, id, routineId, exIndex, setIndex } = target.dataset;
+
+            const actions = {
+                'show-add-goal': () => modal.showAddGoal(),
+                'add-goal': () => app.addGoal(),
+                'delete-goal': () => app.deleteGoal(id),
+                'view-details': () => modal.showWorkoutDetails(id),
+                'delete-workout': () => app.deleteWorkout(id),
+                'start-workout': () => app.startWorkout(id),
+                'finish-workout': () => app.finishWorkout(),
+                'cancel-workout': () => app.cancelWorkout(),
+                'add-set': () => app.addSet(id),
+                'remove-set': () => app.removeSet(exIndex, setIndex),
+                'add-routine': () => app.addRoutine(),
+                'edit-routine': () => app.editRoutine(id),
+                'delete-routine': () => app.deleteRoutine(id),
+                'add-exercise': () => app.addExercise(),
+                'edit-exercise': () => app.editExercise(routineId, exIndex),
+                'remove-exercise': () => app.removeExercise(routineId, exIndex),
+                'analyze-progress': () => app.analyzeProgress(),
+                'logout': () => app.logout(),
+                'hide-modal': () => modal.hide(id)
+            };
+
+            if (actions[action]) {
+                actions[action]();
+            }
+        });
+        
+        // Listeners de Formulário
+        loginForm.querySelector('form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            app.login();
+        });
+         signupForm.querySelector('form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            app.signup();
+        });
+        document.querySelector('#login-form a').addEventListener('click', (e) => {
+            e.preventDefault();
+            app.showSignUp();
+        });
+        document.querySelector('#signup-form a').addEventListener('click', (e) => {
+            e.preventDefault();
+            app.showLogin();
+        });
+
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', e => {
                 e.preventDefault();
@@ -1014,6 +1053,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 showPage(pageId);
             });
         });
+
         lucide.createIcons();
     };
 
